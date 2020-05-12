@@ -46,6 +46,8 @@ MQTT_listen = False     # listen for MQTT commands. Requires correct [MQTT] sett
 MQTT_update = False     # publish status updates over MQTT. Requires correct [MQTT] settings
 num_retries = 3         # number of retries when sending requests. No need to change it unless your network sucks.
 update_interval = 3     # interval between updates in seconds (used if MQTT_update = True). Your TV might not appreciate lower values.
+domoticz = False	# activation of domoticz notifications
+
 [TV]
 host =                  # TV's ip address
 port =                  # will be discovered automatically, but you can override it here
@@ -62,6 +64,10 @@ TLS = False             # use TLS
 cert_path =             # full path to your custom certificate if you are using one, otherwise leave it blank            
 topic_pylips =          # Pylips will listen for commands to this topic
 topic_status =          # Pylips will send status updates to this topic
+[DOMOTICZ]
+host = 			# your Domoticz ip address
+port = 			# your Domoticz port 
+protocol = 		# your Domoticz protocol
 ```
 
 Now turn your TV on and run Pylips without any arguments to complete setting it up (it will discover your TV's API version, port and protocol + pair and save the credentials if required):
@@ -294,6 +300,10 @@ Enabling `MQTT_update` in `settings.ini` will publish status updates to `topic_s
 ```
 {"powerstate": "On", "volume": 28, "muted": false, "cur_app": {"app": "TV", "channel": {"channel": {"ccid": 644, "preset": "15", "name": "Comedy Central HD"}, "channelList": {"id": "allcab", "version": "19"}}}, "ambilight": {"styleName": "OFF", "isExpert": false}, "ambihue": false}
 ```
+
+## DOMOTICZ INTEGRATION
+python3 pylips.py --command powerstate
+when in available_commands.json the idx is set for powerstate mode and domoticz is activated in settings.ini, the update of domoticz device is possible
 
 ## API reference
 The TV's API is roughly based on [JointSpace](http://jointspace.sourceforge.net/) with a current version of 6.2. The only available official documentation that I was able to find is for JointSpace version 1, which is incredibly outdated. 

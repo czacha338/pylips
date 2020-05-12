@@ -18,7 +18,8 @@
 			"path": "channeldb/tv/favoritelLists/all"
 		},
 		"powerstate": {
-			"path": "powerstate"
+			"path": "powerstate",
+			"idx": "0"
 		},
 		"volume": {
 			"path": "audio/volume"

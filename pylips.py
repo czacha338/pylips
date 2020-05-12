@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # version 1.2.0
 import platform    
 import subprocess
@@ -260,10 +261,16 @@ class Pylips:
                 print("Request sent!")
             if len(r.text) > 0:
                 print(r.text)
+                if self.config["DEFAULT"]["domoticz"].lower()=="true":
+                    if verbose:
+                        print("Activate domoticz")
+                    self.domoticz_update(r.text,self.verbose,err_count)
                 return r.text
         else:
             if self.config["DEFAULT"]["mqtt_listen"].lower()=="true":
                 self.mqtt_update_status({"powerstate":"Off", "volume":None, "muted":False, "cur_app":None, "ambilight":None, "ambihue":False})
+            if self.config["DEFAULT"]["domoticz"].lower()=="true":
+                self.domoticz_update('{"powerstate":"Off"}')
             return json.dumps({"error":"Can not reach the API"})
 
     # sends a general POST request
@@ -458,6 +465,35 @@ class Pylips:
                 self.mqtt_update_ambilight()
                 self.mqtt_update_ambihue()
             time.sleep(int(self.config["DEFAULT"]["update_interval"]))
+
+    def domoticz_update(self, text=None, verbose=True, err_count=0):
+        if verbose == True:
+            print("Started domoticz update")
+            print(text)
+        response = json.loads(text)
+        if args.command in response:
+            idx=self.available_commands["get"][args.command]["idx"]
+            if str(response[args.command] == "Standby" or response[args.command] == "Off"):
+                value=0
+            if str(response[args.command] == "On"):
+                value=1 
+            while err_count < int(self.config["DEFAULT"]["num_retries"]):
+                if verbose:
+                    print("Sending POST request to", str(self.config["DOMOTICZ"]["protocol"]) + str(self.config["DOMOTICZ"]["host"]) + ":" + str(self.config["DOMOTICZ"]["port"]) + "/json.htm?type=command&param=udevice&idx=" + str(idx) + "&nvalue=" + str(value)) 
+                try:
+                    r = session.get(str(self.config["DOMOTICZ"]["protocol"]) + str(self.config["DOMOTICZ"]["host"]) + ":" + str(self.config["DOMOTICZ"]["port"]) + "/json.htm?type=command&param=udevice&idx=" + str(idx) + "&nvalue=" + str(value), timeout=2)
+                except Exception:
+                    err_count += 1
+                    continue
+                if verbose:
+                    print("Request sent!")
+                if len(r.text) > 0:
+                    print(r.text)
+                    return r.text
+            else:
+                print(json.dumps({"error":"Can not reach the API"}))
+                return json.dumps({"error":"Can not reach the API"})
+        return 0
 
 if __name__ == '__main__':
     pylips = Pylips(args.config)
