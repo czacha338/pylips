@@ -473,9 +473,9 @@ class Pylips:
         response = json.loads(text)
         if args.command in response:
             idx=self.available_commands["get"][args.command]["idx"]
-            if str(response[args.command] == "Standby" or response[args.command] == "Off"):
+            if (response[args.command] == "Standby" or response[args.command] == "Off"):
                 value=0
-            if str(response[args.command] == "On"):
+            if response[args.command] == "On":
                 value=1 
             while err_count < int(self.config["DEFAULT"]["num_retries"]):
                 if verbose:
